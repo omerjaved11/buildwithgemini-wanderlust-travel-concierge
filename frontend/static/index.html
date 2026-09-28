@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wanderlust Travel Concierge</title>
+<!-- Google Fonts & Material Symbols -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0">
+<style>
+  :root {
+    --accent: #0d9488;
+    --accent-dark: #0f766e;
+    --accent-light: #ccfbf1;
+    --secondary: #0284c7;
+    --bg: #f8fafc;
+    --card-bg: #ffffff;
+    --border: #e2e8f0;
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --user-bubble: linear-gradient(135deg, #0d9488 0%, #0284c7 100%);
+  }
+
+  * { box-sizing: border-box; }
+  
+  body {
+    margin: 0;
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    background: linear-gradient(180deg, #f0fdfa 0%, #f8fafc 40%, #e0f2fe 100%);
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    color: var(--text-primary);
+  }
+
+  /* Header */
+  header {
+    background: linear-gradient(135deg, #0d9488 0%, #0284c7 100%);
+    color: #fff;
+    padding: 1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    box-shadow: 0 4px 20px rgba(13, 148, 136, 0.2);
+    z-index: 10;
+  }
+  header .logo-badge {
+    font-size: 1.4rem;
+    background: rgba(255, 255, 255, 0.2);
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    backdrop-filter: blur(4px);
+  }
+  header .header-info { display: flex; flex-direction: column; }
+  header .title { font-weight: 700; font-size: 1.15rem; letter-spacing: -0.01em; }
+  header .subtitle { font-size: 0.8rem; opacity: 0.9; font-weight: 400; }
+
+  /* Main Chat Container */
+  .chat-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    max-width: 860px;
+    width: 100%;
+    margin: 1rem auto;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+  }
+
+  #log {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    scroll-behavior: smooth;
+  }
+
+  /* Messages & Dialogue Layout */
+  .msg {
+    display: flex;
+    gap: 0.75rem;
+    max-width: 88%;
+    animation: fadeIn 0.25s ease-out;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .msg.user {
+    align-self: flex-end;
+    flex-direction: row-reverse;
+  }
+  .msg.agent {
+    align-self: flex-start;
+  }
+
+  .avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  }
+  .msg.user .avatar {
+    background: linear-gradient(135deg, #0284c7, #2563eb);
+    color: #fff;
+  }
+  .msg.agent .avatar {
+    background: linear-gradient(135deg, #0d9488, #0f766e);
+    color: #fff;
+  }
+
+  .bubble-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    max-width: 100%;
+  }
+
+  .sender-name {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-left: 0.2rem;
+  }
+  .msg.user .sender-name {
+    text-align: right;
+    margin-right: 0.2rem;
+  }
+
+  .bubble {
+    display: inline-block;
+    padding: 0.85rem 1.15rem;
+    border-radius: 18px;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-break: break-word;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  }
+
+  .msg.user .bubble {
+    background: var(--user-bubble);
+    color: #ffffff;
+    border-bottom-right-radius: 4px;
+    font-weight: 500;
+  }
+  .msg.agent .bubble {
+    background: #ffffff;
+    color: var(--text-primary);
+    border: 1px solid var(--border);
+    border-bottom-left-radius: 4px;
+  }
+
+  /* Rich Card Output */
+  .bubble.rich {
+    background: transparent;
+    border: none;
+    padding: 0;
+    box-shadow: none;
+    max-width: 100%;
+    white-space: normal;
+  }
+
+  /* Typing Indicator */
+  .typing-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 0.75rem 1.1rem;
+    background: #ffffff;
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    border-bottom-left-radius: 4px;
+  }
+  .typing-indicator span {
+    width: 7px;
+    height: 7px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: typing 1.4s infinite ease-in-out both;
+  }
+  .typing-indicator span:nth-child(1) { animation-delay: 0s; }
+  .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+  .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes typing {
+    0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+    40% { transform: scale(1); opacity: 1; }
+  }
+
+  /* Prompt Chips */
+  .prompt-chips {
+    display: flex;
+    gap: 0.6rem;
+    padding: 0.75rem 1.25rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    background: rgba(248, 250, 252, 0.6);
+    border-top: 1px solid rgba(226, 232, 240, 0.6);
+  }
+  .chip {
+    background: #ffffff;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 0.5rem 0.95rem;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+    font-weight: 500;
+    font-family: inherit;
+  }
+  .chip:hover {
+    border-color: var(--accent);
+    color: var(--accent-dark);
+    background: var(--accent-light);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(13, 148, 136, 0.15);
+  }
+
+  /* Input Form */
+  form {
+    display: flex;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+    background: #ffffff;
+    border-top: 1px solid var(--border);
+  }
+  input {
+    flex: 1;
+    padding: 0.85rem 1.1rem;
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    font-size: 0.95rem;
+    font-family: inherit;
+    outline: none;
+    transition: all 0.2s ease;
+    background: #f8fafc;
+  }
+  input:focus {
+    border-color: var(--accent);
+    background: #ffffff;
+    box-shadow: 0 0 0 4px rgba(13, 148, 136, 0.12);
+  }
+  button {
+    padding: 0.85rem 1.4rem;
+    border: none;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #0d9488 0%, #0284c7 100%);
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 0.95rem;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    box-shadow: 0 4px 12px rgba(13, 148, 136, 0.25);
+  }
+  button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(13, 148, 136, 0.35);
+    opacity: 0.95;
+  }
+
+  /* --- A2UI component styles (Card, Column, Row, Text, Divider, List, Image, Icon) --- */
+  .a2card {
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.25rem;
+    background: #ffffff;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+    max-width: 100%;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .a2card:hover {
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  }
+  .a2card + .a2card, .a2col > .a2card { margin-top: 0.75rem; }
+  .a2col { display: flex; flex-direction: column; gap: 0.6rem; }
+  .a2row { display: flex; flex-direction: row; gap: 0.75rem; align-items: center; flex-wrap: wrap; }
+  .a2row.between { justify-content: space-between; }
+  .a2text { margin: 0; line-height: 1.5; color: var(--text-primary); }
+  .a2text.a2-h1 { font-size: 1.5rem; font-weight: 700; color: var(--accent-dark); }
+  .a2text.a2-h2 { font-size: 1.25rem; font-weight: 700; color: var(--text-primary); }
+  .a2text.a2-h3 { font-size: 1.1rem; font-weight: 600; color: var(--secondary); }
+  .a2text.a2-h4 { font-size: 1rem; font-weight: 600; }
+  .a2text.a2-caption { font-size: 0.85rem; color: var(--text-secondary); }
+  .a2divider { border: none; border-top: 1px solid var(--border); margin: 0.5rem 0; width: 100%; }
+  .a2img { max-width: 100%; border-radius: 12px; display: block; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+  .material-symbols-outlined { font-family: 'Material Symbols Outlined'; font-size: 1.25rem; line-height: 1; vertical-align: middle; color: var(--accent); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-badge">✈️</div>
+  <div class="header-info">
+    <span class="title">Wanderlust Travel Concierge</span>
+    <span class="subtitle">AI Travel Planner & Destination Guide</span>
+  </div>
+</header>
+
+<div class="chat-container">
+  <div id="log">
+    <!-- Initial Greeting -->
+    <div class="msg agent">
+      <div class="avatar">✈️</div>
+      <div class="bubble-wrapper">
+        <span class="sender-name">Wanderlust Agent</span>
+        <div class="bubble">Welcome! I'm your Wanderlust Travel Concierge. Ask me for destination ideas, custom itineraries, budget calculations, or travel postcards!</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="prompt-chips">
+    <button type="button" class="chip" onclick="sendPrompt('Show me cultural destinations in Kyoto')">⛩️ Destinations in Kyoto</button>
+    <button type="button" class="chip" onclick="sendPrompt('Calculate budget breakdown for a 5-day trip to Bali')">💰 5-day Bali budget</button>
+    <button type="button" class="chip" onclick="sendPrompt('Generate a postcard image of a sunset in Amalfi')">🖼️ Amalfi sunset postcard</button>
+  </div>
+
+  <form id="form">
+    <input id="input" placeholder="Plan your next adventure..." autocomplete="off" autofocus>
+    <button type="submit">
+      <span>Send</span>
+      <span class="material-symbols-outlined" style="color: #fff; font-size: 1.1rem;">send</span>
+    </button>
+  </form>
+</div>
+
+<script>
+const log = document.getElementById("log");
+const form = document.getElementById("form");
+const input = document.getElementById("input");
+
+function sendPrompt(text) {
+  input.value = text;
+  form.dispatchEvent(new Event("submit", { cancelable: true }));
+}
+
+function el(tag, cls, text) {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (text != null) e.textContent = text;
+  return e;
+}
+
+function createMessage(who) {
+  const m = el("div", "msg " + who);
+  
+  const avatar = el("div", "avatar", who === "user" ? "👤" : "✈️");
+  const wrapper = el("div", "bubble-wrapper");
+  const name = el("span", "sender-name", who === "user" ? "You" : "Wanderlust Agent");
+  const b = el("div", "bubble");
+  
+  wrapper.appendChild(name);
+  wrapper.appendChild(b);
+  m.appendChild(avatar);
+  m.appendChild(wrapper);
+  
+  log.appendChild(m);
+  log.scrollTop = log.scrollHeight;
+  return b;
+}
+
+function createTypingIndicator() {
+  const m = el("div", "msg agent");
+  const avatar = el("div", "avatar", "✈️");
+  const wrapper = el("div", "bubble-wrapper");
+  const name = el("span", "sender-name", "Wanderlust Agent");
+  
+  const typing = el("div", "typing-indicator");
+  typing.appendChild(el("span"));
+  typing.appendChild(el("span"));
+  typing.appendChild(el("span"));
+  
+  wrapper.appendChild(name);
+  wrapper.appendChild(typing);
+  m.appendChild(avatar);
+  m.appendChild(wrapper);
+  
+  log.appendChild(m);
+  log.scrollTop = log.scrollHeight;
+  return { container: m, bubble: typing };
+}
+
+/* ----------------------------------------------------------------------------
+ * A2UI mini-renderer (v0.8 Basic Catalog subset).
+ * -------------------------------------------------------------------------- */
+
+function boundStr(v) {
+  if (v == null) return "";
+  if (typeof v === "string") return v;
+  if (typeof v.literalString === "string") return v.literalString;
+  return "";
+}
+
+function childIds(props) {
+  const ids = [];
+  if (props && typeof props.child === "string") ids.push(props.child);
+  const ch = props && props.children;
+  if (ch && Array.isArray(ch.explicitList)) for (const c of ch.explicitList) if (typeof c === "string") ids.push(c);
+  return ids;
+}
+
+function iconName(n) { return String(n || "").replace(/([a-z0-9])([A-Z])/g, "$1_$2").replace(/\s+/g, "_").toLowerCase(); }
+
+function buildNode(id, comps, seen) {
+  if (!id || seen.has(id)) return null;
+  seen.add(id);
+  const spec = comps[id];
+  if (!spec || typeof spec !== "object") return null;
+  const type = Object.keys(spec)[0];
+  const props = spec[type] || {};
+  const kids = () => childIds(props).map(cid => buildNode(cid, comps, seen)).filter(Boolean);
+
+  switch (type) {
+    case "Card": {
+      const d = el("div", "a2card"); kids().forEach(n => d.appendChild(n)); return d;
+    }
+    case "Column":
+    case "List": {
+      const horizontal = type === "List" && props.direction === "horizontal";
+      const d = el("div", horizontal ? "a2row" : "a2col"); kids().forEach(n => d.appendChild(n)); return d;
+    }
+    case "Row": {
+      const d = el("div", "a2row" + (props.distribution === "spaceBetween" ? " between" : ""));
+      kids().forEach(n => d.appendChild(n)); return d;
+    }
+    case "Text": {
+      const t = el("div", "a2text");
+      const hint = String(props.usageHint || "body").toLowerCase();
+      if (["h1", "h2", "h3", "h4", "h5", "h6"].includes(hint)) t.classList.add("a2-" + hint);
+      else if (hint === "caption") t.classList.add("a2-caption");
+      t.textContent = boundStr(props.text);
+      return t;
+    }
+    case "Divider":
+      return el("hr", "a2divider");
+    case "Image": {
+      const src = boundStr(props.url || props.src);
+      if (!/^https?:\/\//i.test(src)) return null;
+      const img = el("img", "a2img"); img.src = src; img.alt = boundStr(props.alt) || ""; return img;
+    }
+    case "Icon": {
+      const s = el("span", "material-symbols-outlined"); s.textContent = iconName(boundStr(props.name) || props.name); return s;
+    }
+    default:
+      return null;
+  }
+}
+
+function renderSurface(messages, container) {
+  const comps = {};
+  const roots = [];
+  for (const m of messages) {
+    if (m.beginRendering && typeof m.beginRendering.root === "string") roots.push(m.beginRendering.root);
+    const su = m.surfaceUpdate;
+    if (su && Array.isArray(su.components)) for (const c of su.components) if (c && c.id && c.component) comps[c.id] = c.component;
+  }
+  let rootIds = roots.filter(r => comps[r]);
+  if (rootIds.length === 0) {
+    const referenced = new Set();
+    for (const id in comps) { const spec = comps[id]; childIds(spec[Object.keys(spec)[0]] || {}).forEach(c => referenced.add(c)); }
+    rootIds = Object.keys(comps).filter(id => !referenced.has(id));
+  }
+  let drew = false;
+  for (const rid of rootIds) { const node = buildNode(rid, comps, new Set()); if (node) { container.appendChild(node); drew = true; } }
+  return drew;
+}
+
+function flattenText(messages) {
+  const out = [];
+  for (const m of messages) {
+    const su = m.surfaceUpdate;
+    if (su && Array.isArray(su.components)) for (const c of su.components) if (c && c.component && c.component.Text) out.push(boundStr(c.component.Text.text));
+  }
+  return out.join("\n").trim();
+}
+
+function renderReply(msgWrapper, parts) {
+  const bubble = msgWrapper.querySelector(".bubble");
+  bubble.textContent = "";
+  const texts = parts.filter(p => p && (p.kind === "text" || (!p.kind && p.text))).map(p => p.text || "");
+  const a2ui = parts.filter(p => p && p.kind === "a2ui" && p.data).map(p => p.data);
+
+  const textStr = texts.join("\n").trim();
+  if (textStr) bubble.appendChild(el("div", null, textStr));
+
+  if (a2ui.length) {
+    bubble.classList.add("rich");
+    if (!renderSurface(a2ui, bubble)) bubble.appendChild(el("div", null, flattenText(a2ui) || "(no card content)"));
+  }
+  if (!bubble.childNodes.length) bubble.textContent = "(no response)";
+  log.scrollTop = log.scrollHeight;
+}
+
+form.addEventListener("submit", async (ev) => {
+  ev.preventDefault();
+  const text = input.value.trim();
+  if (!text) return;
+  
+  createMessage("user").textContent = text;
+  input.value = "";
+  
+  const typing = createTypingIndicator();
+  
+  try {
+    const res = await fetch("/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: text })
+    });
+    
+    const raw = await res.text();
+    let data;
+    try { data = JSON.parse(raw); }
+    catch { throw new Error(`Server returned non-JSON (HTTP ${res.status}). ${raw.slice(0, 300)}`); }
+    
+    // Replace typing indicator with actual reply message
+    typing.container.remove();
+    const replyBubble = createMessage("agent");
+    const agentMsgWrapper = replyBubble.closest(".msg");
+    renderReply(agentMsgWrapper, data.parts || []);
+  } catch (e) {
+    typing.container.remove();
+    const replyBubble = createMessage("agent");
+    replyBubble.textContent = "Error: " + e.message;
+  }
+});
+</script>
+</body>
+</html>
